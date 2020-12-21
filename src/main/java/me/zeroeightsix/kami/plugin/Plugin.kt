@@ -27,7 +27,8 @@ open class Plugin(
     val category: Category = Category.GENERAL,
     val authors: List<String> = emptyList(),
     val dependencies: List<String> = emptyList(),
-    val url: String = "https://github.com/kami-blue/client"
+    val url: String = "https://github.com/kami-blue/client",
+    val useReflections: Boolean = true
 ) {
 
     /**
@@ -45,8 +46,8 @@ open class Plugin(
         RENDER("Render")
     }
 
-    val pluginModuleClasses = ClassUtils.findClasses(this.javaClass.`package`.name, Module::class.java)
-    val pluginCommandClasses = ClassUtils.findClasses(this.javaClass.`package`.name, ClientCommand::class.java)
+    val pluginModuleClasses = if (useReflections) ClassUtils.findClasses(this.javaClass.`package`.name, Module::class.java) else emptyList()
+    val pluginCommandClasses = if (useReflections) ClassUtils.findClasses(this.javaClass.`package`.name, ClientCommand::class.java) else emptyList()
 
     val pluginModules = arrayListOf<Module>()
     val pluginCommands = arrayListOf<ClientCommand>()

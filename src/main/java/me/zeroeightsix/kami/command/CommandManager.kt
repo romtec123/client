@@ -3,6 +3,7 @@ package me.zeroeightsix.kami.command
 import kotlinx.coroutines.*
 import me.zeroeightsix.kami.KamiMod
 import me.zeroeightsix.kami.module.modules.client.CommandConfig
+import me.zeroeightsix.kami.plugin.PluginManager
 import me.zeroeightsix.kami.util.TimerUtils
 import me.zeroeightsix.kami.util.onMainThread
 import me.zeroeightsix.kami.util.text.MessageSendHelper
@@ -11,6 +12,7 @@ import org.kamiblue.command.AbstractCommandManager
 import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.utils.ClassUtils
+import org.kamiblue.commons.utils.ClassUtils.findClasses
 
 object CommandManager : AbstractCommandManager<ClientExecuteEvent>() {
 
@@ -20,7 +22,25 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>() {
     @JvmStatic
     fun init() {
         val stopTimer = TimerUtils.StopTimer()
-        val commandClasses = ClassUtils.findClasses("me.zeroeightsix.kami.command.commands", ClientCommand::class.java)
+        val commandClasses = findClasses("me.zeroeightsix.kami.command.commands", ClientCommand::class.java).toMutableList()
+
+        if (PluginManager.plugins.isNotEmpty()) {
+            PluginManager.plugins.forEach { plugin ->
+                if (plugin.useReflections) {
+                    commandClasses.addAll(plugin.pluginCommandClasses)
+
+                    for (clazz in plugin.pluginCommandClasses) {
+                        plugin.pluginCommands.add(ClassUtils.getInstance(clazz))
+                    }
+                } else {
+                    plugin.pluginCommands.forEach {
+                        commandClasses.add(it.javaClass)
+                    }
+                }
+            }
+
+            commandClasses.distinct()
+        }
 
         for (clazz in commandClasses) {
             register(ClassUtils.getInstance(clazz))

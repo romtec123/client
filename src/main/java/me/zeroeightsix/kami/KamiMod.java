@@ -10,10 +10,13 @@ import me.zeroeightsix.kami.gui.mc.KamiGuiUpdateNotification;
 import me.zeroeightsix.kami.manager.ManagerLoader;
 import me.zeroeightsix.kami.module.Module;
 import me.zeroeightsix.kami.module.ModuleManager;
+import me.zeroeightsix.kami.plugin.PluginManager;
 import me.zeroeightsix.kami.setting.Setting;
 import me.zeroeightsix.kami.setting.Settings;
 import me.zeroeightsix.kami.util.ConfigUtils;
 import me.zeroeightsix.kami.util.graphics.font.KamiFontRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -23,6 +26,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 @Mod(
         modid = KamiMod.ID,
@@ -48,6 +53,7 @@ public class KamiMod {
     public static final String KAMI_KATAKANA = "\u30ab\u30df\u30d6\u30eb";
 
     public static final String DIRECTORY = "kamiblue/";
+    public static final String PLUGINS_DIRECTORY = DIRECTORY + "plugins/";
     public static final Logger LOG = LogManager.getLogger("KAMI Blue");
 
     @Mod.Instance
@@ -60,8 +66,16 @@ public class KamiMod {
     @SuppressWarnings("ResultOfMethodCallIgnored") // Java meme
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        final File directory = new File(DIRECTORY);
-        if (!directory.exists()) directory.mkdir();
+        final File directory = new File(PLUGINS_DIRECTORY);
+        if (!directory.exists()) directory.mkdirs();
+
+        try {
+            Launch.classLoader.addURL(new URL(Minecraft.getMinecraft().gameDir.toURI().toURL().toString() + PLUGINS_DIRECTORY));
+        } catch (Throwable t) {
+            LOG.error("Unable to add kamiblue/plugins directory to classpath!");
+        }
+
+        PluginManager.initPlugins();
 
         MAIN_THREAD = Thread.currentThread();
         KamiGuiUpdateNotification.updateCheck();
