@@ -24,7 +24,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>() {
         val stopTimer = TimerUtils.StopTimer()
         val commandClasses = findClasses("me.zeroeightsix.kami.command.commands", ClientCommand::class.java).toMutableList()
 
-        if (PluginManager.plugins.isNotEmpty()) {
+        if (!PluginManager.plugins.isNullOrEmpty()) {
             PluginManager.plugins.forEach { plugin ->
                 if (plugin.useReflections) {
                     commandClasses.addAll(plugin.pluginCommandClasses)
@@ -38,9 +38,9 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>() {
                     }
                 }
             }
-
-            commandClasses.distinct()
         }
+
+        commandClasses.sortBy { it.simpleName }
 
         for (clazz in commandClasses) {
             register(ClassUtils.getInstance(clazz))

@@ -1,6 +1,7 @@
 package me.zeroeightsix.kami.module
 
 import me.zeroeightsix.kami.KamiMod
+import me.zeroeightsix.kami.plugin.PluginManager
 import me.zeroeightsix.kami.util.TimerUtils
 import org.kamiblue.commons.utils.ClassUtils
 import org.lwjgl.input.Keyboard
@@ -11,7 +12,7 @@ object ModuleManager {
     private var preLoadingThread: Thread? = null
 
     /** List for module classes found during pre-loading */
-    private var moduleClassList: List<Class<out Module>>? = null
+    private var moduleClassList: MutableList<Class<out Module>>? = null
 
     /** HashMap for the registered Modules */
     private val moduleMap = LinkedHashMap<Class<out Module>, Module>()
@@ -20,7 +21,26 @@ object ModuleManager {
     fun preLoad() {
         preLoadingThread = Thread {
             val stopTimer = TimerUtils.StopTimer()
-            moduleClassList = ClassUtils.findClasses("me.zeroeightsix.kami.module.modules", Module::class.java)
+            moduleClassList = ClassUtils.findClasses("me.zeroeightsix.kami.module.modules", Module::class.java).toMutableList()
+
+            if (!PluginManager.plugins.isNullOrEmpty()) {
+                PluginManager.plugins.forEach { plugin ->
+                    if (plugin.useReflections) {
+                        moduleClassList!!.addAll(plugin.pluginModuleClasses)
+
+                        for (clazz in plugin.pluginModuleClasses) {
+                            plugin.pluginModules.add(ClassUtils.getInstance(clazz))
+                        }
+                    } else {
+                        plugin.pluginModules.forEach {
+                            moduleClassList!!.add(it.javaClass)
+                        }
+                    }
+                }
+            }
+
+            moduleClassList!!.sortBy { it.simpleName }
+
             val time = stopTimer.stop()
             KamiMod.LOG.info("${moduleClassList!!.size} module(s) found, took ${time}ms")
         }
