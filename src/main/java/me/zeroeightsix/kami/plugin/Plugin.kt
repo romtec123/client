@@ -19,15 +19,15 @@ import org.kamiblue.commons.utils.ClassUtils
  * @param url A link to the plugin's website.
  */
 open class Plugin(
-    id: String,
-    displayName: String,
-    version: String,
-    kamiVersion: String,
-    description: String = "Descriptionless",
-    category: Category = Category.GENERAL,
-    authors: List<String> = emptyList(),
-    dependencies: List<String> = emptyList(),
-    url: String = "https://github.com/kami-blue/client"
+    val id: String,
+    val displayName: String,
+    val version: String,
+    val kamiVersion: String,
+    val description: String = "Descriptionless",
+    val category: Category = Category.GENERAL,
+    val authors: List<String> = emptyList(),
+    val dependencies: List<String> = emptyList(),
+    val url: String = "https://github.com/kami-blue/client"
 ) {
 
     /**
