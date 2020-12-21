@@ -48,8 +48,8 @@ open class Plugin(
     val pluginModuleClasses = ClassUtils.findClasses(this.javaClass.`package`.name, Module::class.java)
     val pluginCommandClasses = ClassUtils.findClasses(this.javaClass.`package`.name, ClientCommand::class.java)
 
-    val pluginModules: MutableList<Module> = emptyList<Module>().toMutableList()
-    val pluginCommands: MutableList<ClientCommand> = emptyList<ClientCommand>().toMutableList()
+    val pluginModules = ArrayList<Module>()
+    val pluginCommands = ArrayList<ClientCommand>()
 
     companion object {
         @JvmField val mc: Minecraft = Minecraft.getMinecraft()
