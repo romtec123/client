@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 
 @Mod(
         modid = KamiMod.ID,
@@ -70,7 +71,7 @@ public class KamiMod {
         if (!directory.exists()) directory.mkdirs();
 
         try {
-            Launch.classLoader.addURL(new URL(Minecraft.getMinecraft().gameDir.toURI().toURL().toString() + PLUGINS_DIRECTORY));
+            Launch.classLoader.addURL(Paths.get(PLUGINS_DIRECTORY).toUri().toURL());
         } catch (Throwable t) {
             LOG.error("Unable to add kamiblue/plugins directory to classpath!");
         }

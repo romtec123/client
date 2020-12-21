@@ -6,5 +6,5 @@ class SamplePlugin : Plugin(
     id = "sample",
     displayName = "Sample Plugin",
     version = "1.0.0",
-    kamiVersion = "1.12.20"
+    kamiVersion = "1.12.01"
 )
