@@ -13,13 +13,14 @@ import java.util.*
 
 @Module.Info(
         name = "AutoQMain",
-        description = "Automatically does '/queue 2b2t-lobby'",
+        description = "Automatically does '/queue main'",
         category = Module.Category.CHAT,
         showOnArray = Module.ShowOnArray.OFF
 )
 object AutoQMain : Module() {
     private val showWarns = register(Settings.b("ShowWarnings", true))
     private val dimensionWarning = register(Settings.b("DimensionWarning", true))
+    private val autoDisable = register(Settings.b("AutoDisable", true))
     private val delay = register(Settings.integerBuilder("Delay").withValue(30).withRange(5, 120).withStep(5))
 
     private val timer = TickTimer(TimeUnit.SECONDS)
@@ -41,6 +42,11 @@ object AutoQMain : Module() {
                 sendMessage("&l&6Warning: &r&6You are not in the end. Not running &b/queue main&7.")
                 return@safeListener
             }
+            
+            if (player.dimension != 1 && autoDisable.value) {
+                disable()
+                return@safeListener
+            }
 
             sendQueueMain()
         }
@@ -50,8 +56,8 @@ object AutoQMain : Module() {
         val formatter = SimpleDateFormat("HH:mm:ss")
         val date = Date(System.currentTimeMillis())
 
-        MessageSendHelper.sendChatMessage("&7Run &b/queue 2b2t-lobby&7 at " + formatter.format(date))
-        sendServerMessage("/queue 2b2t-lobby")
+        MessageSendHelper.sendChatMessage("&7Ran &b/queue main&7 at " + formatter.format(date))
+        sendServerMessage("/queue main")
     }
 
     private fun sendMessage(message: String) {
